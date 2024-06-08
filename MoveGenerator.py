@@ -48,14 +48,24 @@ class MoveGenerator:
                 moves.append(pos)
         return moves
 
+    def is_elephant_eye_clear(self, start_pos, end_pos):
+        mid_x = (start_pos[0] + end_pos[0]) // 2
+        mid_y = (start_pos[1] + end_pos[1]) // 2
+        mid_pos = (mid_x, mid_y)
+        return self.board.get_piece_at(mid_pos) is None
+
     # 象的移動限制
     def get_elephant_moves(self, piece):
         moves = []
         x, y = piece.position
-        possible_positions = [(x+2, y+2), (x-2, y-2), (x+2, y-2), (x-2, y+2)]
+        possible_positions = [
+            (x + 2, y + 2), (x + 2, y - 2),
+            (x - 2, y + 2), (x - 2, y - 2)
+        ]
         for pos in possible_positions:
             if self.is_within_palace_elephant(piece, pos) and not self.is_occupied_by_same_side(piece, pos):
-                moves.append(pos)
+                if self.is_elephant_eye_clear(piece.position, pos):
+                    moves.append(pos)
         return moves
 
     # 馬的移動限制
