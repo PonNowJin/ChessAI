@@ -36,6 +36,15 @@ class MoveGenerator:
         for pos in possible_positions:
             if self.is_within_palace_general(piece, pos) and not self.is_occupied_by_same_side(piece, pos):
                 moves.append(pos)
+    
+        # 将和帅面对面攻击的处理
+        if self.can_attack_general(piece):
+            if piece.color == 'red':
+                black_general = self.get_general('black')
+                moves.append(black_general.position)
+            else:
+                red_general = self.get_general('red')
+                moves.append(red_general.position)
         return moves
 
     # 士的移動限制
@@ -53,6 +62,36 @@ class MoveGenerator:
         mid_y = (start_pos[1] + end_pos[1]) // 2
         mid_pos = (mid_x, mid_y)
         return self.board.get_piece_at(mid_pos) is None
+    
+    def can_attack_general(self, piece):
+        if piece.type != '將' and piece.type != '帥':
+            return False
+
+        x, y = piece.position
+        if piece.color == 'red':
+            target_general = self.get_general('black')
+        else:
+            target_general = self.get_general('red')
+
+        if x != target_general.position[0]:
+            return False
+
+        min_y = min(y, target_general.position[1])
+        max_y = max(y, target_general.position[1])
+
+        for i in range(min_y + 1, max_y):
+            if self.board.get_piece_at((x, i)):
+                return False
+
+        return True
+    
+    def get_general(self, color):
+        for piece in self.board.pieces:
+            if piece.type == '將' and piece.color == color:
+                return piece
+            if piece.type == '帥' and piece.color == color:
+                return piece
+        return None
 
     # 象的移動限制
     def get_elephant_moves(self, piece):

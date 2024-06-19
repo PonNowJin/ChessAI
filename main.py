@@ -1,6 +1,7 @@
 from PieceAndBoard import Piece, Board, ChessBoard
 from ChessGameState import ChessGameState
 import tkinter as tk
+from tkinter import simpledialog
 
 root = tk.Tk()
 
@@ -56,6 +57,17 @@ def ai_move():
     if current_state.is_terminal():
         print("遊戲結束，AI 贏了！")
 
+def ai_first_move():
+    global current_state
+    move = (current_state.board.get_piece_at((7, 9)), (5, 7))
+    current_state = current_state.make_move(move)
+    piece, end_pos = move
+    start_pos = piece.position
+    move_str = f"{chr(start_pos[0] + ord('a'))}{10 - start_pos[1]}{chr(end_pos[0] + ord('a'))}{10 - end_pos[1]}"
+    print(f"AI 移動: {move_str}")
+    board_canvas.draw_pieces(current_state.board.pieces)
+    current_state = ChessGameState(current_state.board, False)
+
 def on_move():
     global current_state
     user_move = entry.get()
@@ -80,45 +92,84 @@ def on_move():
 
 def main():
     initial_pieces = [
-        Piece('將', 'red', (4, 0)),
-        Piece('士', 'red', (3, 0)),
-        Piece('士', 'red', (5, 0)),
-        Piece('車', 'red', (0, 0)),
-        Piece('車', 'red', (8, 0)),
-        Piece('馬', 'red', (7, 0)),
-        Piece('馬', 'red', (1, 0)),
-        Piece('相', 'red', (2, 0)),
-        Piece('相', 'red', (6, 0)),
-        Piece('炮', 'red', (1, 2)),
-        Piece('炮', 'red', (7, 2)),
-        Piece('兵', 'red', (0, 3)),
-        Piece('兵', 'red', (2, 3)),
-        Piece('兵', 'red', (4, 3)),
-        Piece('兵', 'red', (6, 3)),
-        Piece('兵', 'red', (8, 3)),
-        Piece('帥', 'black', (4, 9)),
-        Piece('仕', 'black', (3, 9)),
-        Piece('仕', 'black', (5, 9)),
-        Piece('車', 'black', (0, 9)),
-        Piece('車', 'black', (8, 9)),
-        Piece('馬', 'black', (7, 9)),
-        Piece('馬', 'black', (1, 9)),
-        Piece('象', 'black', (2, 9)),
-        Piece('象', 'black', (6, 9)),
-        Piece('炮', 'black', (1, 7)),
-        Piece('炮', 'black', (7, 7)),
-        Piece('卒', 'black', (0, 6)),
-        Piece('卒', 'black', (2, 6)),
-        Piece('卒', 'black', (4, 6)),
-        Piece('卒', 'black', (6, 6)),
-        Piece('卒', 'black', (8, 6))
+        Piece('將', 'red', (4, 0), 'red'),
+        Piece('士', 'red', (3, 0), 'red'),
+        Piece('士', 'red', (5, 0), 'red'),
+        Piece('車', 'red', (0, 0), 'red'),
+        Piece('車', 'red', (8, 0), 'red'),
+        Piece('馬', 'red', (7, 0), 'red'),
+        Piece('馬', 'red', (1, 0), 'red'),
+        Piece('相', 'red', (2, 0), 'red'),
+        Piece('相', 'red', (6, 0), 'red'),
+        Piece('炮', 'red', (1, 2), 'red'),
+        Piece('炮', 'red', (7, 2), 'red'),
+        Piece('兵', 'red', (0, 3), 'red'),
+        Piece('兵', 'red', (2, 3), 'red'),
+        Piece('兵', 'red', (4, 3), 'red'),
+        Piece('兵', 'red', (6, 3), 'red'),
+        Piece('兵', 'red', (8, 3), 'red'),
+        Piece('帥', 'black', (4, 9), 'black'),
+        Piece('仕', 'black', (3, 9), 'black'),
+        Piece('仕', 'black', (5, 9), 'black'),
+        Piece('車', 'black', (0, 9), 'black'),
+        Piece('車', 'black', (8, 9), 'black'),
+        Piece('馬', 'black', (7, 9), 'black'),
+        Piece('馬', 'black', (1, 9), 'black'),
+        Piece('象', 'black', (2, 9), 'black'),
+        Piece('象', 'black', (6, 9), 'black'),
+        Piece('炮', 'black', (1, 7), 'black'),
+        Piece('炮', 'black', (7, 7), 'black'),
+        Piece('卒', 'black', (0, 6), 'black'),
+        Piece('卒', 'black', (2, 6), 'black'),
+        Piece('卒', 'black', (4, 6), 'black'),
+        Piece('卒', 'black', (6, 6), 'black'),
+        Piece('卒', 'black', (8, 6), 'black')
     ]
+
+    root.title("Chinese Chess")
+
+    # 提示玩家選擇先後手
+    first_player = simpledialog.askstring("選擇先手", "誰先開始？（輸入 '玩家' 或 'AI'）")
+
+    if first_player.lower() != 'ai':
+        initial_pieces = [
+            Piece('將', 'red', (4, 0), 'black'),
+            Piece('士', 'red', (3, 0), 'black'),
+            Piece('士', 'red', (5, 0), 'black'),
+            Piece('車', 'red', (0, 0), 'black'),
+            Piece('車', 'red', (8, 0), 'black'),
+            Piece('馬', 'red', (7, 0), 'black'),
+            Piece('馬', 'red', (1, 0), 'black'),
+            Piece('相', 'red', (2, 0), 'black'),
+            Piece('相', 'red', (6, 0), 'black'),
+            Piece('炮', 'red', (1, 2), 'black'),
+            Piece('炮', 'red', (7, 2), 'black'),
+            Piece('兵', 'red', (0, 3), 'black'),
+            Piece('兵', 'red', (2, 3), 'black'),
+            Piece('兵', 'red', (4, 3), 'black'),
+            Piece('兵', 'red', (6, 3), 'black'),
+            Piece('兵', 'red', (8, 3), 'black'),
+            Piece('帥', 'black', (4, 9), 'red'),
+            Piece('仕', 'black', (3, 9), 'red'),
+            Piece('仕', 'black', (5, 9), 'red'),
+            Piece('車', 'black', (0, 9), 'red'),
+            Piece('車', 'black', (8, 9), 'red'),
+            Piece('馬', 'black', (7, 9), 'red'),
+            Piece('馬', 'black', (1, 9), 'red'),
+            Piece('象', 'black', (2, 9), 'red'),
+            Piece('象', 'black', (6, 9), 'red'),
+            Piece('炮', 'black', (1, 7), 'red'),
+            Piece('炮', 'black', (7, 7), 'red'),
+            Piece('卒', 'black', (0, 6), 'red'),
+            Piece('卒', 'black', (2, 6), 'red'),
+            Piece('卒', 'black', (4, 6), 'red'),
+            Piece('卒', 'black', (6, 6), 'red'),
+            Piece('卒', 'black', (8, 6), 'red')
+        ]
 
     initial_board = Board(initial_pieces)
     global current_state
-    current_state = ChessGameState(initial_board, True)
-
-    root.title("Chinese Chess")
+    current_state = ChessGameState(initial_board, first_player.lower() != 'ai')
 
     global board_canvas, entry
     board_canvas = ChessBoard(root)
@@ -132,6 +183,9 @@ def main():
     label.pack()
 
     root.bind('<Return>', lambda event: on_move())
+
+    if first_player.lower() == 'ai':
+        ai_first_move()
 
     root.mainloop()
 

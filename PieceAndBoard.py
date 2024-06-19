@@ -1,11 +1,12 @@
 import tkinter as tk
 
 class Piece:
-    def __init__(self, piece_type, color, position):
+    def __init__(self, piece_type, color, position, displayColor):
         self.type = piece_type  # 棋子的類型（如：將、士、象、馬、車、炮、兵）
         self.color = color      # 棋子的顏色（紅方或黑方）
         self.position = position  # 棋子的位置（如：(0, 0) 表示在左上角）
         self.domain = []
+        self.displayColor = displayColor
 
     def __repr__(self):
         return f"{self.color[0].upper()}{self.type[0].upper()}@{self.position}"
@@ -35,7 +36,7 @@ class Board:
 
     # 返回棋盤的副本（深拷貝）
     def copy(self):
-        new_pieces = [Piece(piece.type, piece.color, piece.position) for piece in self.pieces]
+        new_pieces = [Piece(piece.type, piece.color, piece.position, piece.displayColor) for piece in self.pieces]
         return Board(new_pieces)
 
     def print_board(self):
@@ -70,6 +71,6 @@ class ChessBoard(tk.Canvas):
         self.delete("piece")
         for piece in pieces:
             x, y = piece.position
-            color = "red" if piece.color == "red" else "black"
+            color = "red" if piece.displayColor == "red" else "black"
             self.create_text(x * 50 + 75, y * 50 + 25, text=f"{piece.type[0].upper()}",
                              tags="piece", font=("Arial", 24), fill=color)
