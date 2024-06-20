@@ -23,7 +23,6 @@ class ChessGameState:
         return not red_general or not black_general
 
     def evaluate(self):
-        # 定义时间段的棋子分数
         piece_values_opening = {
             '將': 6000, '帥': 6000,
             '士': 120, '仕': 120,
@@ -54,7 +53,6 @@ class ChessGameState:
             '兵': 30, '卒': 30
         }
 
-        # 根据移动次数选择时间段
         if self.move_count < 20:
             piece_values = piece_values_opening
         elif self.move_count < 40:

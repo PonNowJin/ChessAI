@@ -5,6 +5,9 @@ from tkinter import simpledialog
 
 root = tk.Tk()
 
+# 初始化保存每一步棋的堆疊
+move_stack = []
+
 def parse_move(move_str):
     if len(move_str) == 6:  # 檢查是否是兩位數的起始和結束行號
         start_col, start_row, end_col, end_row = move_str[0], move_str[1:3], move_str[3], move_str[4:6]
@@ -46,10 +49,12 @@ def ai_move():
             best_move = move
 
     if best_move:
-        current_state = current_state.make_move(best_move)
         piece, end_pos = best_move
         start_pos = piece.position
+        captured_piece = current_state.board.get_piece_at(end_pos)
         move_str = f"{chr(start_pos[0] + ord('a'))}{10 - start_pos[1]}{chr(end_pos[0] + ord('a'))}{10 - end_pos[1]}"
+        move_stack.append((start_pos, end_pos, piece, captured_piece))
+        current_state = current_state.make_move(best_move)
         print(f"AI 移動: {move_str}")
         board_canvas.draw_pieces(current_state.board.pieces)
         current_state = ChessGameState(current_state.board, False)
@@ -59,11 +64,13 @@ def ai_move():
 
 def ai_first_move():
     global current_state
-    move = (current_state.board.get_piece_at((7, 9)), (5, 7))
-    current_state = current_state.make_move(move)
-    piece, end_pos = move
+    piece = current_state.board.get_piece_at((7, 0))
     start_pos = piece.position
-    move_str = f"{chr(start_pos[0] + ord('a'))}{10 - start_pos[1]}{chr(end_pos[0] + ord('a'))}{10 - end_pos[1]}"
+    end_pos = (6, 2)
+    captured_piece = current_state.board.get_piece_at(end_pos)
+    move_str = f"h10g8"
+    move_stack.append((start_pos, end_pos, piece, captured_piece))
+    current_state = current_state.make_move((piece, end_pos))
     print(f"AI 移動: {move_str}")
     board_canvas.draw_pieces(current_state.board.pieces)
     current_state = ChessGameState(current_state.board, False)
@@ -75,7 +82,10 @@ def on_move():
         start_pos, end_pos = parse_move(user_move)
         if not is_valid_move(current_state, start_pos, end_pos):
             raise ValueError("Invalid move: move is not allowed.")
+        piece = current_state.board.get_piece_at(start_pos)
+        captured_piece = current_state.board.get_piece_at(end_pos)
         move_piece(current_state.board, start_pos, end_pos)
+        move_stack.append((start_pos, end_pos, piece, captured_piece))
         print(f"玩家移動: {user_move}")
         board_canvas.draw_pieces(current_state.board.pieces)
         current_state = ChessGameState(current_state.board, True)
@@ -87,8 +97,28 @@ def on_move():
         print("遊戲結束，你贏了！")
         return
 
-    # 呼叫 AI move
     root.after(100, ai_move)
+
+def undo_move():
+    global current_state
+    if len(move_stack) >= 2:
+        # 回退玩家的步
+        user_move = move_stack.pop()
+        move_piece(current_state.board, user_move[1], user_move[0])
+        if user_move[3]:  # 如果有被吃掉的棋子，恢复它
+            current_state.board.pieces.append(user_move[3])
+        
+        # 回退AI的步
+        ai_move = move_stack.pop()
+        move_piece(current_state.board, ai_move[1], ai_move[0])
+        if ai_move[3]:  # 如果有被吃掉的棋子，恢复它
+            current_state.board.pieces.append(ai_move[3])
+        
+        current_state = ChessGameState(current_state.board, not current_state.is_max_turn)
+        board_canvas.draw_pieces(current_state.board.pieces)
+        print("悔棋成功")
+    else:
+        print("沒有可悔棋的步數")
 
 def main():
     initial_pieces = [
@@ -183,6 +213,10 @@ def main():
     label.pack()
 
     root.bind('<Return>', lambda event: on_move())
+
+    # 添加悔棋按鈕
+    undo_button = tk.Button(root, text="悔棋", command=undo_move)
+    undo_button.pack()
 
     if first_player.lower() == 'ai':
         ai_first_move()
