@@ -32,7 +32,10 @@ Game End Detection: Detects if one of the players has won the game by checking i
 
 ## Technologies
 Python: The entire project is built using Python.
+
 Minimax Algorithm: For AI decision-making.
+
 Alpha-Beta Pruning: To optimize the decision-making process and reduce unnecessary computations.
+
 Arc Consistency: Used to simplify decision-making by filtering out invalid moves.
 
